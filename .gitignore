@@ -1,0 +1,22 @@
+# Dependencias
+node_modules/
+
+# Builds
+dist/
+build/
+backend/dist/
+frontend/dist/
+
+# Entorno (secretos) — nunca commitear
+.env
+backend/.env
+frontend/.env
+
+# Logs y coverage
+*.log
+npm-debug.log*
+coverage/
+
+# SO / editor
+.DS_Store
+Thumbs.db
