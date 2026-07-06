@@ -2,12 +2,25 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { requireRole } from '../middlewares/requireRole';
 import {
   listarUsuarios,
+  listarUsuariosSeleccionables,
   crearUsuario,
   actualizarUsuario,
 } from '../services/usuariosService';
 
-// Gestión de usuarios — solo rol admin. Rutas definidas en el propio controlador.
+// Gestión de usuarios — solo rol admin (excepto el selector). Rutas en el controlador.
 const router = Router();
+
+// GET /api/usuarios/seleccionables — cualquier usuario autenticado (para selectores).
+router.get(
+  '/usuarios/seleccionables',
+  async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      return res.json(await listarUsuariosSeleccionables());
+    } catch (err) {
+      return next(err);
+    }
+  },
+);
 
 // GET /api/usuarios
 router.get(

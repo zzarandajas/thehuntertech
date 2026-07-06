@@ -1,0 +1,330 @@
+/* ============================================================================
+   App shell — cabecera fija "glass" (blur + transparencia) sobre navegación
+   horizontal. Paleta "Trust & Authority": navy #0F172A / azul #0369A1 /
+   oro champán #C6A15B. Sustituye el layout clásico sider + header de AntD.
+   ========================================================================== */
+
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(120% 90% at 85% -10%, rgba(3, 105, 161, 0.06) 0%, transparent 55%),
+    radial-gradient(90% 80% at -5% 0%, rgba(198, 161, 91, 0.05) 0%, transparent 50%),
+    #f8fafc;
+}
+
+/* --------------------------------- Logotipo -------------------------------- */
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  line-height: 1;
+}
+.brand-mark__dot {
+  color: var(--brand-gold, #c6a15b);
+}
+
+/* -------------------------- Cabecera fija tipo glass ------------------------ */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.68);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  backdrop-filter: saturate(180%) blur(18px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  transition: background 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+.app-header.is-scrolled {
+  background: rgba(255, 255, 255, 0.82);
+  border-bottom-color: rgba(15, 23, 42, 0.1);
+  box-shadow: 0 10px 34px -20px rgba(15, 23, 42, 0.4);
+}
+/* Fallback si el navegador no soporta backdrop-filter */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .app-header {
+    background: rgba(255, 255, 255, 0.96);
+  }
+}
+
+.app-header__inner {
+  height: 66px;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding-inline: clamp(16px, 4vw, 40px);
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.app-brand {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 10px;
+  transition: opacity 160ms ease;
+}
+.app-brand:hover {
+  opacity: 0.82;
+}
+.app-brand:focus-visible {
+  outline: 2px solid #c6a15b;
+  outline-offset: 4px;
+}
+
+/* -------------------------- Navegación horizontal -------------------------- */
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 6px;
+}
+.app-nav__item {
+  position: relative;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  transition: color 160ms ease, background 160ms ease;
+}
+.app-nav__icon {
+  display: inline-flex;
+  font-size: 16px;
+  opacity: 0.85;
+}
+.app-nav__item:hover {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.045);
+}
+.app-nav__item:focus-visible {
+  outline: 2px solid #c6a15b;
+  outline-offset: 2px;
+}
+.app-nav__item.is-active {
+  color: #0f172a;
+  font-weight: 600;
+}
+.app-nav__item.is-active .app-nav__icon {
+  opacity: 1;
+  color: #0369a1;
+}
+/* Subrayado premium en degradado oro → azul */
+.app-nav__item.is-active::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #c6a15b, #0369a1);
+}
+
+/* ------------------------------- Zona derecha ------------------------------ */
+.app-header__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-user {
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px 5px 6px;
+  border-radius: 12px;
+  transition: background 160ms ease;
+}
+.app-user:hover {
+  background: rgba(15, 23, 42, 0.05);
+}
+.app-user:focus-visible {
+  outline: 2px solid #c6a15b;
+  outline-offset: 2px;
+}
+.app-user__avatar.ant-avatar {
+  background: linear-gradient(135deg, #0f172a 0%, #0369a1 100%);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6), 0 4px 10px -4px rgba(15, 23, 42, 0.5);
+  flex: none;
+}
+.app-user__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+}
+.app-user__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.app-user__role {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Botón hamburguesa (solo móvil) */
+.app-burger {
+  display: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  color: #0f172a;
+  transition: background 160ms ease;
+}
+.app-burger:hover {
+  background: rgba(15, 23, 42, 0.05);
+}
+.app-burger:focus-visible {
+  outline: 2px solid #c6a15b;
+  outline-offset: 2px;
+}
+
+/* --------------------------- Contenedor de página -------------------------- */
+.app-main {
+  flex: 1;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: clamp(20px, 3vw, 32px) clamp(16px, 4vw, 40px) 64px;
+  animation: appFade 320ms ease both;
+}
+
+@keyframes appFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------- Drawer de navegación móvil -------------------- */
+.app-drawer .ant-drawer-body {
+  display: flex;
+  flex-direction: column;
+}
+.app-drawer__brand {
+  padding: 20px 22px;
+  border-bottom: 1px solid #eef2f7;
+}
+.app-drawer__nav {
+  flex: 1;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.app-drawer__item {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  text-align: left;
+  transition: background 160ms ease, color 160ms ease;
+}
+.app-drawer__item .app-nav__icon {
+  font-size: 18px;
+}
+.app-drawer__item:hover {
+  background: rgba(15, 23, 42, 0.05);
+  color: #0f172a;
+}
+.app-drawer__item.is-active {
+  color: #0f172a;
+  font-weight: 600;
+  background: linear-gradient(90deg, rgba(198, 161, 91, 0.14), rgba(3, 105, 161, 0.1));
+}
+.app-drawer__item.is-active .app-nav__icon {
+  color: #0369a1;
+}
+.app-drawer__foot {
+  border-top: 1px solid #eef2f7;
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.app-drawer__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.app-drawer__logout {
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  background: rgba(220, 38, 38, 0.04);
+  color: #dc2626;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  transition: background 160ms ease;
+}
+.app-drawer__logout:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+/* -------------------------------- Responsive ------------------------------- */
+@media (max-width: 860px) {
+  .app-nav {
+    display: none;
+  }
+  .app-burger {
+    display: inline-flex;
+  }
+  .app-user__meta {
+    display: none;
+  }
+  .app-user {
+    padding: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-header,
+  .app-main {
+    animation: none;
+    transition: none;
+  }
+}

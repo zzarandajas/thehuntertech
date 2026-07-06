@@ -27,6 +27,16 @@ export async function listarUsuarios() {
   return usuarios.map(aPublico);
 }
 
+// Lista mínima de usuarios activos para selectores (asignar socios a un mandato, etc.).
+export async function listarUsuariosSeleccionables() {
+  const usuarios = await Usuario.findAll({
+    where: { activo: true },
+    attributes: ['id', 'nombre', 'rol'],
+    order: [['nombre', 'ASC']],
+  });
+  return usuarios;
+}
+
 export interface DatosNuevoUsuario {
   nombre: string;
   email: string;

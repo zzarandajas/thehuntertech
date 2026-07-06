@@ -12,8 +12,16 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ) {
-  const status = err.status || 500;
-  const mensaje = err.message || 'Error interno del servidor';
+  // Errores de validación / unicidad de Sequelize → 400 / 409.
+  let status = err.status || 500;
+  let mensaje = err.message || 'Error interno del servidor';
+  if (err.name === 'SequelizeValidationError') {
+    status = 400;
+    mensaje = 'Datos no válidos (revisa los rangos y campos obligatorios)';
+  } else if (err.name === 'SequelizeUniqueConstraintError') {
+    status = 409;
+    mensaje = 'Ya existe un registro con esos datos';
+  }
   const cuerpo: Record<string, unknown> = { mensaje };
 
   if (process.env.NODE_ENV !== 'production' && err.stack) {

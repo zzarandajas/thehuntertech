@@ -1,0 +1,279 @@
+/* ============================================================================
+   Login "Trust & Authority" — split-screen editorial + acceso corporativo.
+   Paleta: navy #0F172A / azul #1E3A8A / oro champán #C6A15B.
+   ========================================================================== */
+
+.login-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  background: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   Panel de marca (izquierda)
+   -------------------------------------------------------------------------- */
+.login-brand {
+  position: relative;
+  flex: 1.05 1 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(32px, 5vw, 64px);
+  color: #f8fafc;
+  isolation: isolate;
+  background:
+    linear-gradient(140deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.72) 45%, rgba(30, 58, 138, 0.55) 100%),
+    #0f172a;
+}
+
+/* Fotografía corporativa: capa base bajo el degradado navy. Si la imagen no
+   carga, el degradado + navy mantienen el panel premium. */
+.login-brand__photo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80');
+  background-size: cover;
+  background-position: center;
+  /* Oscurecido: opacity deja pasar el navy del degradado detrás + brightness baja
+     la foto, para que el texto blanco tenga contraste suficiente (WCAG). */
+  filter: saturate(0.9) contrast(1.02) brightness(0.62);
+  opacity: 0.55;
+}
+
+/* Retícula fina tipo "topografía / mira" sobre la foto. */
+.login-brand__grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.16;
+  background-image:
+    linear-gradient(to right, rgba(198, 161, 91, 0.55) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(120% 100% at 20% 0%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(120% 100% at 20% 0%, #000 30%, transparent 75%);
+}
+
+.login-brand__top,
+.login-brand__mid,
+.login-brand__bottom {
+  position: relative;
+  animation: loginRise 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.login-brand__mid { animation-delay: 90ms; }
+.login-brand__bottom { animation-delay: 180ms; }
+
+/* Marca */
+.login-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  font-size: 19px;
+}
+.login-mark__dot { color: var(--login-gold, #c6a15b); }
+
+/* Eyebrow con hairline dorado */
+.login-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(248, 250, 252, 0.72);
+  margin-bottom: 22px;
+}
+.login-eyebrow::before {
+  content: '';
+  width: 34px;
+  height: 1px;
+  background: var(--login-gold, #c6a15b);
+}
+
+.login-headline {
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-weight: 500;
+  font-size: clamp(30px, 3.4vw, 46px);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin: 0 0 20px;
+  max-width: 16ch;
+  text-wrap: balance;
+}
+.login-headline em {
+  font-style: italic;
+  color: var(--login-gold, #c6a15b);
+}
+
+.login-lead {
+  margin: 0;
+  max-width: 46ch;
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.6;
+  color: rgba(226, 232, 240, 0.85);
+}
+
+/* Fila de disciplinas / confianza */
+.login-pillars {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(226, 232, 240, 0.9);
+}
+.login-pillars span:not(.login-pillars__sep) { white-space: nowrap; }
+.login-pillars__sep {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--login-gold, #c6a15b);
+  display: inline-block;
+}
+.login-confidential {
+  margin: 18px 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  color: rgba(203, 213, 225, 0.7);
+}
+
+/* --------------------------------------------------------------------------
+   Panel de acceso (derecha)
+   -------------------------------------------------------------------------- */
+.login-panel {
+  flex: 0.95 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(28px, 4vw, 56px);
+  background: #ffffff;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  animation: loginRise 640ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 120ms;
+}
+
+.login-card__mark {
+  display: none; /* solo visible en móvil, cuando se oculta el panel de marca */
+  margin-bottom: 28px;
+}
+
+.login-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.4px;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+.login-subtitle {
+  margin: 0 0 26px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: #64748b;
+}
+
+.login-forgot {
+  display: block;
+  text-align: right;
+  margin: -6px 0 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e3a8a;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+.login-forgot:hover { color: #c6a15b; }
+
+/* Botón de acceso: navy autoridad con brillo sutil (no oro macizo). */
+.login-submit.ant-btn {
+  height: 48px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  border: none;
+  color: #fff;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  box-shadow: 0 10px 22px -12px rgba(15, 23, 42, 0.85);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+.login-submit.ant-btn:hover:not(:disabled) {
+  color: #fff !important;
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px -14px rgba(15, 23, 42, 0.9);
+}
+.login-submit.ant-btn:active:not(:disabled) { transform: translateY(0); }
+.login-submit.ant-btn:focus-visible {
+  outline: 2px solid #c6a15b;
+  outline-offset: 2px;
+}
+
+/* Pie de tarjeta: nota de seguridad */
+.login-foot {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid #eef2f7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.login-foot svg { flex: none; }
+
+/* Inputs un punto más altos para jerarquía táctil */
+.login-card .ant-input-affix-wrapper {
+  padding-block: 9px;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive: el panel de marca se convierte en banda superior compacta
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .login-shell { flex-direction: column; }
+  .login-brand {
+    flex: none;
+    min-height: 190px;
+    padding: 28px 24px;
+  }
+  .login-brand__mid { display: none; } /* headline editorial se reserva a desktop */
+  .login-panel { flex: 1; padding: 32px 22px 44px; }
+  .login-card__mark { display: block; }
+  .login-card { animation-delay: 0ms; }
+}
+
+@media (max-width: 900px) {
+  .login-brand__bottom .login-confidential { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Accesibilidad de movimiento
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .login-brand__top,
+  .login-brand__mid,
+  .login-brand__bottom,
+  .login-card {
+    animation: none;
+  }
+  .login-submit.ant-btn { transition: none; }
+}
+
+@keyframes loginRise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
