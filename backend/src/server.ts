@@ -1,6 +1,7 @@
 import 'dotenv/config'; // Debe ser lo primero para que process.env esté disponible en todos los módulos.
 import app from './app';
 import sequelize from './config/database';
+import { initDb } from './config/initDb';
 
 const PORT = Number(process.env.PORT || 4000);
 const MAX_REINTENTOS = 10;
@@ -28,6 +29,13 @@ async function conectarConReintentos(reintentos = MAX_REINTENTOS): Promise<void>
 
 async function iniciar(): Promise<void> {
   await conectarConReintentos();
+  // Sincroniza el esquema y siembra datos base ANTES de aceptar peticiones,
+  // para que las tablas existan cuando llegue el primer login. Ver config/initDb.ts.
+  try {
+    await initDb();
+  } catch (err) {
+    console.error('[db] initDb falló; el servidor arranca igualmente:', err);
+  }
   app.listen(PORT, () => {
     console.log(`[api] Backend escuchando en http://localhost:${PORT}`);
   });

@@ -7,6 +7,9 @@ import PipelinePlantilla from '../models/PipelinePlantilla';
 import PipelinePlantillaEtapa from '../models/PipelinePlantillaEtapa';
 import { ETAPAS_PIPELINE_DEFAULT } from '../constants/etapasPipeline';
 
+// Nota: la lógica vive en `seedCatalogos()` para poder reutilizarla desde el
+// arranque del servidor (config/initDb.ts) sin abrir/cerrar la conexión aquí.
+
 // Seed idempotente de catálogos (findOrCreate por clave única). Se puede re-ejecutar.
 const DIMENSIONES = [
   { codigo: 'perf_marketing', nombre: 'Performance Marketing (paid, SEM, affiliate)', orden: 1 },
@@ -30,9 +33,9 @@ const VERTICALES = [
 
 const ORIGENES = ['CIONET', 'Red de socios', 'Sourcing directo', 'Comunidad THT', 'Referido'];
 
-async function main() {
-  await sequelize.authenticate();
-
+// Siembra idempotente de catálogos. No abre ni cierra la conexión: asume que la
+// instancia de Sequelize ya está autenticada (la app en runtime o el script main).
+export async function seedCatalogos(): Promise<void> {
   for (const d of DIMENSIONES) {
     await DimensionCatalogo.findOrCreate({ where: { codigo: d.codigo }, defaults: d });
   }
@@ -69,10 +72,19 @@ async function main() {
     `[seed:catalogos] Dimensiones=${DIMENSIONES.length} Verticales=${VERTICALES.length} ` +
       `Origenes=${ORIGENES.length} Plantilla="${plantilla.nombre}"`,
   );
+}
+
+// Punto de entrada como script (npm run seed:catalogos): gestiona la conexión.
+async function main() {
+  await sequelize.authenticate();
+  await seedCatalogos();
   await sequelize.close();
 }
 
-main().catch((err) => {
-  console.error('[seed:catalogos] Error:', err);
-  process.exit(1);
-});
+// Solo ejecuta main() si se invoca directamente como script, no al importarlo.
+if (require.main === module) {
+  main().catch((err) => {
+    console.error('[seed:catalogos] Error:', err);
+    process.exit(1);
+  });
+}

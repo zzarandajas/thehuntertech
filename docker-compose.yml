@@ -33,6 +33,11 @@ services:
       JWT_EXPIRES: ${JWT_EXPIRES:-8h}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-4-8}
+      # Al arrancar: sincroniza esquema (alter) y siembra catalogos + admin inicial.
+      DB_SYNC: ${DB_SYNC:-alter}
+      ADMIN_NOMBRE: ${ADMIN_NOMBRE:-Administrador}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     depends_on:
       mysql:
         condition: service_healthy
