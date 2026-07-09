@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Avatar, Drawer, Dropdown, type MenuProps } from 'antd';
 import {
+  ApartmentOutlined,
   AppstoreOutlined,
   ContactsOutlined,
   DashboardOutlined,
@@ -36,6 +37,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: '/talento', icon: <ContactsOutlined />, label: 'Talento' },
   { key: '/clientes', icon: <TeamOutlined />, label: 'Clientes' },
   { key: '/catalogos', icon: <AppstoreOutlined />, label: 'Catálogos', adminOnly: true },
+  { key: '/plantillas', icon: <ApartmentOutlined />, label: 'Plantillas', adminOnly: true },
   { key: '/usuarios', icon: <SolutionOutlined />, label: 'Usuarios', adminOnly: true },
 ];
 

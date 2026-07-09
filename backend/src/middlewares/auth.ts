@@ -8,11 +8,15 @@ export interface PayloadToken {
   rol: string;
 }
 
-// Rutas que NO requieren token (además de todo lo que empiece por /public/).
+// Rutas que NO requieren token (además de todo lo que empiece por /api/public/).
 const RUTAS_PUBLICAS = ['/api/auth/login', '/api/health'];
 
 export function auth(req: Request, res: Response, next: NextFunction) {
-  if (RUTAS_PUBLICAS.includes(req.path) || req.path.startsWith('/public/')) {
+  if (
+    RUTAS_PUBLICAS.includes(req.path) ||
+    req.path.startsWith('/api/public/') ||
+    req.path.startsWith('/public/')
+  ) {
     return next();
   }
 

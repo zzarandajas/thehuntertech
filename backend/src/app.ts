@@ -15,6 +15,9 @@ import pipelineController from './controllers/pipelineController';
 import evaluacionController from './controllers/evaluacionController';
 import informesController from './controllers/informesController';
 import dashboardController from './controllers/dashboardController';
+import tareasController from './controllers/tareasController';
+import plantillasController from './controllers/plantillasController';
+import aiController from './controllers/aiController';
 import publicController from './controllers/publicController';
 
 // Capa de aplicación: autenticación global + UNIÓN de los endpoints de todos los
@@ -38,6 +41,9 @@ app.use('/api', pipelineController);
 app.use('/api', evaluacionController);
 app.use('/api', informesController);
 app.use('/api', dashboardController);
+app.use('/api', tareasController);
+app.use('/api', plantillasController);
+app.use('/api', aiController);
 
 // Rutas públicas (sin /api, sin autenticación).
 app.use(publicController);

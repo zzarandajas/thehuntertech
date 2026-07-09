@@ -3,6 +3,7 @@ import {
   ProcesoSeleccion,
   ProcesoDimension,
   ProcesoConsultor,
+  ProcesoEtapa,
   Cliente,
   Vertical,
   Usuario,
@@ -10,6 +11,7 @@ import {
 } from '../models';
 import type { RolEnProceso } from '../models/ProcesoConsultor';
 import type { EstadoProceso } from '../models/ProcesoSeleccion';
+import { copiarEtapasDePlantilla } from './procesoEtapasService';
 
 interface ErrorConEstado extends Error {
   status?: number;
@@ -47,8 +49,12 @@ export async function obtenerProceso(id: number) {
         as: 'consultores',
         include: [{ model: Usuario, as: 'usuario', attributes: ['id', 'nombre', 'email', 'rol'] }],
       },
+      { model: ProcesoEtapa, as: 'etapas' },
     ],
-    order: [[{ model: ProcesoDimension, as: 'dimensiones' }, 'orden', 'ASC']],
+    order: [
+      [{ model: ProcesoDimension, as: 'dimensiones' }, 'orden', 'ASC'],
+      [{ model: ProcesoEtapa, as: 'etapas' }, 'orden', 'ASC'],
+    ],
   });
   if (!proceso) {
     throw error(404, 'Mandato no encontrado');
@@ -62,6 +68,7 @@ export interface DatosProceso {
   titulo: string;
   confidencialidad?: string;
   anonimizarNombres?: boolean;
+  plantillaId?: number;
 }
 
 export async function crearProceso(datos: DatosProceso, createdBy: number) {
@@ -73,6 +80,8 @@ export async function crearProceso(datos: DatosProceso, createdBy: number) {
     anonimizarNombres: datos.anonimizarNombres ?? false,
     createdBy,
   });
+  // Copia las etapas de la plantilla elegida (o la por defecto) al nuevo mandato.
+  await copiarEtapasDePlantilla(proceso.id, datos.plantillaId);
   return obtenerProceso(proceso.id);
 }
 

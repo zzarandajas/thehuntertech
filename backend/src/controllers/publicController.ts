@@ -3,10 +3,12 @@ import { obtenerInformePorToken } from '../services/informesService';
 import { generarPdfInforme } from '../services/pdfService';
 
 // Rutas públicas (sin autenticación) para compartir informes con el Board del cliente.
+// Van bajo /api/public/* para que el proxy del frontend (Vite en dev, nginx en prod)
+// las enrute al backend sin colisionar con la ruta SPA /public/informes/:token.
 const router = Router();
 
-// GET /public/informes/:token
-router.get('/public/informes/:token', async (req: Request, res: Response, next: NextFunction) => {
+// GET /api/public/informes/:token
+router.get('/api/public/informes/:token', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const informe = await obtenerInformePorToken(req.params.token);
     return res.json({
@@ -19,8 +21,8 @@ router.get('/public/informes/:token', async (req: Request, res: Response, next: 
   }
 });
 
-// GET /public/informes/:token/pdf
-router.get('/public/informes/:token/pdf', async (req: Request, res: Response, next: NextFunction) => {
+// GET /api/public/informes/:token/pdf
+router.get('/api/public/informes/:token/pdf', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const informe = await obtenerInformePorToken(req.params.token);
     const buffer = await generarPdfInforme(informe.snapshotJson);

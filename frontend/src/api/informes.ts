@@ -1,10 +1,21 @@
 import client from './client';
 
+export interface SnapshotExperiencia {
+  empresa: string;
+  cargo: string | null;
+  periodo: string | null;
+  descripcion: string | null;
+}
+
 export interface SnapshotCandidato {
   nombre: string;
   etapa: string;
   posicionActualSnapshot: string | null;
   expectativaSalarial: string | null;
+  ciudad?: string | null;
+  idiomas?: string | null;
+  formacion?: string | null;
+  trayectoria?: SnapshotExperiencia[];
   scores: { dimension: string; score: number; comentario: string | null }[];
   metricas: { valor: string; descripcion: string }[];
   observaciones: { fortalezas: string[]; puntosExplorar: string[] };
@@ -84,7 +95,7 @@ export async function descargarPdf(informeId: number, nombre: string): Promise<v
 export async function obtenerInformePublico(
   token: string,
 ): Promise<{ version: number; fechaGeneracion: string; snapshot: SnapshotInforme }> {
-  const resp = await fetch(`/public/informes/${token}`);
+  const resp = await fetch(`/api/public/informes/${token}`);
   if (!resp.ok) {
     const cuerpo = await resp.json().catch(() => ({}));
     throw new Error(cuerpo.mensaje || 'No se pudo cargar el informe');

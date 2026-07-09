@@ -3,6 +3,9 @@ import sequelize from '../config/database';
 import DimensionCatalogo from '../models/DimensionCatalogo';
 import Vertical from '../models/Vertical';
 import OrigenCandidato from '../models/OrigenCandidato';
+import PipelinePlantilla from '../models/PipelinePlantilla';
+import PipelinePlantillaEtapa from '../models/PipelinePlantillaEtapa';
+import { ETAPAS_PIPELINE_DEFAULT } from '../constants/etapasPipeline';
 
 // Seed idempotente de catálogos (findOrCreate por clave única). Se puede re-ejecutar.
 const DIMENSIONES = [
@@ -40,8 +43,31 @@ async function main() {
     await OrigenCandidato.findOrCreate({ where: { nombre }, defaults: { nombre } });
   }
 
+  // Plantilla de pipeline por defecto (idempotente). La migración también la
+  // crea; esto cubre entornos que solo ejecutan los seeds.
+  const [plantilla, creada] = await PipelinePlantilla.findOrCreate({
+    where: { esDefault: true },
+    defaults: {
+      nombre: 'Por defecto',
+      descripcion: 'Pipeline estándar de executive search.',
+      esDefault: true,
+    },
+  });
+  if (creada) {
+    await PipelinePlantillaEtapa.bulkCreate(
+      ETAPAS_PIPELINE_DEFAULT.map((e, i) => ({
+        plantillaId: plantilla.id,
+        nombre: e.nombre,
+        orden: i,
+        color: e.color,
+        esFinal: e.esFinal,
+      })),
+    );
+  }
+
   console.log(
-    `[seed:catalogos] Dimensiones=${DIMENSIONES.length} Verticales=${VERTICALES.length} Origenes=${ORIGENES.length}`,
+    `[seed:catalogos] Dimensiones=${DIMENSIONES.length} Verticales=${VERTICALES.length} ` +
+      `Origenes=${ORIGENES.length} Plantilla="${plantilla.nombre}"`,
   );
   await sequelize.close();
 }

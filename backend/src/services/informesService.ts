@@ -5,9 +5,11 @@ import {
   ProcesoSeleccion,
   ProcesoCandidato,
   ProcesoDimension,
+  ProcesoEtapa,
   Cliente,
   Vertical,
   Candidato,
+  CandidatoExperiencia,
   DimensionCatalogo,
   CandidatoMetrica,
   CandidatoDimensionScore,
@@ -46,7 +48,12 @@ async function construirSnapshot(procesoId: number) {
   const participantes = await ProcesoCandidato.findAll({
     where: { procesoId },
     include: [
-      { model: Candidato, as: 'candidato', attributes: ['id', 'nombre'] },
+      {
+        model: Candidato,
+        as: 'candidato',
+        attributes: ['id', 'nombre', 'ciudadResidencia', 'idiomas', 'formacion'],
+        include: [{ model: CandidatoExperiencia, as: 'experiencias' }],
+      },
       {
         model: CandidatoDimensionScore,
         as: 'scores',
@@ -54,8 +61,12 @@ async function construirSnapshot(procesoId: number) {
       },
       { model: CandidatoMetrica, as: 'metricas' },
       { model: CandidatoObservacion, as: 'observaciones' },
+      { model: ProcesoEtapa, as: 'etapa', attributes: ['nombre'] },
     ],
-    order: [['orden', 'ASC']],
+    order: [
+      ['orden', 'ASC'],
+      [{ model: Candidato, as: 'candidato' }, { model: CandidatoExperiencia, as: 'experiencias' }, 'orden', 'ASC'],
+    ],
   });
 
   const anonimizar = proceso.anonimizarNombres;
@@ -63,9 +74,20 @@ async function construirSnapshot(procesoId: number) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const candidatos = participantes.map((pc: any, idx: number) => ({
     nombre: anonimizar ? `Candidato ${idx + 1}` : pc.candidato?.nombre ?? `Candidato ${idx + 1}`,
-    etapa: pc.etapa,
+    etapa: pc.etapa?.nombre ?? null,
     posicionActualSnapshot: pc.posicionActualSnapshot,
     expectativaSalarial: pc.expectativaSalarial,
+    ciudad: pc.candidato?.ciudadResidencia ?? null,
+    idiomas: pc.candidato?.idiomas ?? null,
+    formacion: pc.candidato?.formacion ?? null,
+    // Trayectoria profesional destacada (experiencias del candidato, ya ordenadas).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    trayectoria: (pc.candidato?.experiencias ?? []).map((x: any) => ({
+      empresa: x.empresa,
+      cargo: x.cargo,
+      periodo: x.periodo,
+      descripcion: x.descripcion,
+    })),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     scores: (pc.scores ?? []).map((s: any) => ({
       dimension: s.dimension?.nombre ?? '',

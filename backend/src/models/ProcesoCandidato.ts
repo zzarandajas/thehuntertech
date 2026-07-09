@@ -7,16 +7,6 @@ import {
 } from 'sequelize';
 import sequelize from '../config/database';
 
-export type EtapaPipeline =
-  | 'sourcing'
-  | 'longlist'
-  | 'shortlist'
-  | 'presentado'
-  | 'entrevista_cliente'
-  | 'oferta'
-  | 'contratado'
-  | 'descartado';
-
 export class ProcesoCandidato extends Model<
   InferAttributes<ProcesoCandidato>,
   InferCreationAttributes<ProcesoCandidato>
@@ -25,10 +15,11 @@ export class ProcesoCandidato extends Model<
   declare procesoId: number;
   declare candidatoId: number;
   declare orden: CreationOptional<number>;
-  declare etapa: CreationOptional<EtapaPipeline>;
+  declare etapaId: number;
   declare posicionActualSnapshot: CreationOptional<string | null>;
   declare expectativaSalarial: CreationOptional<string | null>;
   declare fechaIncorporacion: CreationOptional<Date | null>;
+  declare etapaActualizadaAt: CreationOptional<Date | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
@@ -39,20 +30,7 @@ ProcesoCandidato.init(
     procesoId: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, field: 'proceso_id' },
     candidatoId: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, field: 'candidato_id' },
     orden: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    etapa: {
-      type: DataTypes.ENUM(
-        'sourcing',
-        'longlist',
-        'shortlist',
-        'presentado',
-        'entrevista_cliente',
-        'oferta',
-        'contratado',
-        'descartado',
-      ),
-      allowNull: false,
-      defaultValue: 'sourcing',
-    },
+    etapaId: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, field: 'etapa_id' },
     posicionActualSnapshot: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -64,6 +42,7 @@ ProcesoCandidato.init(
       field: 'expectativa_salarial',
     },
     fechaIncorporacion: { type: DataTypes.DATE, allowNull: true, field: 'fecha_incorporacion' },
+    etapaActualizadaAt: { type: DataTypes.DATE, allowNull: true, field: 'etapa_actualizada_at' },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   },

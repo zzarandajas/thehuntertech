@@ -22,6 +22,7 @@ import {
   EditOutlined,
   FileTextOutlined,
   PartitionOutlined,
+  ThunderboltOutlined,
 } from '@ant-design/icons';
 import {
   actualizarMandato,
@@ -35,6 +36,8 @@ import {
 import { listarCatalogo, type Dimension } from '../api/catalogos';
 import { listarUsuariosSeleccionables, type UsuarioSeleccionable } from '../api/usuarios';
 import { generarInforme, listarInformes, type InformeResumen } from '../api/informes';
+import { candidatosSugeridos, type MatchCandidato } from '../api/ia';
+import { agregarCandidatoAPipeline } from '../api/pipeline';
 import { ESTADO_COLOR, ESTADO_LABEL } from './MandatosListPage';
 
 const { Title } = Typography;
@@ -63,6 +66,9 @@ export default function MandatoDetailPage() {
   const [nuevoUsuarioId, setNuevoUsuarioId] = useState<number | undefined>();
   const [nuevoRol, setNuevoRol] = useState<RolEnProceso>('soporte');
   const [informes, setInformes] = useState<InformeResumen[]>([]);
+  const [matches, setMatches] = useState<MatchCandidato[] | null>(null);
+  const [cargandoMatches, setCargandoMatches] = useState(false);
+  const [anadiendo, setAnadiendo] = useState<number | null>(null);
 
   const cargar = async () => {
     setCargando(true);
@@ -165,6 +171,42 @@ export default function MandatoDetailPage() {
       setGuardando(false);
     }
   };
+
+  const sugerir = async () => {
+    setCargandoMatches(true);
+    try {
+      setMatches(await candidatosSugeridos(mandatoId));
+    } catch (err) {
+      const resp = (err as { response?: { status?: number; data?: { mensaje?: string } } }).response;
+      if (resp?.status === 503) {
+        message.warning('IA no disponible: falta configurar la API key en el backend');
+      } else {
+        message.error(resp?.data?.mensaje ?? 'No se pudieron obtener sugerencias');
+      }
+    } finally {
+      setCargandoMatches(false);
+    }
+  };
+
+  const anadirAlPipeline = async (candidatoId: number) => {
+    setAnadiendo(candidatoId);
+    try {
+      await agregarCandidatoAPipeline(mandatoId, candidatoId);
+      message.success('Candidato añadido al pipeline');
+      setMatches((prev) => (prev ? prev.filter((m) => m.candidatoId !== candidatoId) : prev));
+    } catch (err) {
+      const resp = (err as { response?: { status?: number; data?: { mensaje?: string } } }).response;
+      if (resp?.status === 409) {
+        message.warning('El candidato ya está en el pipeline');
+      } else {
+        message.error(resp?.data?.mensaje ?? 'No se pudo añadir al pipeline');
+      }
+    } finally {
+      setAnadiendo(null);
+    }
+  };
+
+  const colorScore = (s: number) => (s >= 75 ? 'green' : s >= 50 ? 'gold' : 'default');
 
   const nombreUsuario = (usuarioId: number) =>
     usuarios.find((u) => u.id === usuarioId)?.nombre ?? `Usuario ${usuarioId}`;
@@ -307,6 +349,74 @@ export default function MandatoDetailPage() {
           size="small"
           locale={{ emptyText: 'Sin socios asignados' }}
         />
+      </Card>
+
+      <Card
+        title="Candidatos sugeridos (IA)"
+        extra={
+          <Button
+            type="primary"
+            icon={<ThunderboltOutlined />}
+            loading={cargandoMatches}
+            onClick={sugerir}
+          >
+            Sugerir con IA
+          </Button>
+        }
+      >
+        {matches === null ? (
+          <Typography.Text type="secondary">
+            Pulsa «Sugerir con IA» para puntuar el pool de talento contra este mandato según sus
+            dimensiones de evaluación, skills y trayectoria.
+          </Typography.Text>
+        ) : (
+          <Table
+            rowKey="candidatoId"
+            size="small"
+            pagination={false}
+            dataSource={matches}
+            locale={{ emptyText: 'Sin sugerencias' }}
+            columns={[
+              {
+                title: 'Candidato',
+                key: 'nombre',
+                render: (_, m: MatchCandidato) => (
+                  <Button
+                    type="link"
+                    style={{ padding: 0 }}
+                    onClick={() => navigate(`/talento/${m.candidatoId}`)}
+                  >
+                    {m.nombre}
+                  </Button>
+                ),
+              },
+              {
+                title: 'Score',
+                dataIndex: 'score',
+                key: 'score',
+                width: 80,
+                defaultSortOrder: 'descend',
+                sorter: (a: MatchCandidato, b: MatchCandidato) => a.score - b.score,
+                render: (s: number) => <Tag color={colorScore(s)}>{s}</Tag>,
+              },
+              { title: 'Justificación', dataIndex: 'justificacion', key: 'just' },
+              {
+                title: '',
+                key: 'add',
+                width: 160,
+                render: (_, m: MatchCandidato) => (
+                  <Button
+                    size="small"
+                    loading={anadiendo === m.candidatoId}
+                    onClick={() => anadirAlPipeline(m.candidatoId)}
+                  >
+                    Añadir al pipeline
+                  </Button>
+                ),
+              },
+            ]}
+          />
+        )}
       </Card>
 
       <Card

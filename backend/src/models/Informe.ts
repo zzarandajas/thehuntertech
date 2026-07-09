@@ -34,7 +34,25 @@ Informe.init(
       defaultValue: DataTypes.NOW,
       field: 'fecha_generacion',
     },
-    snapshotJson: { type: DataTypes.JSON, allowNull: false, field: 'snapshot_json' },
+    snapshotJson: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      field: 'snapshot_json',
+      // En MariaDB (y otras variantes) el tipo JSON es un alias de LONGTEXT, por lo que
+      // Sequelize no lo parsea al leer y devuelve un string. Normalizamos aquí para que
+      // el resto de la app (vista web, PDF, enlace público) reciba siempre un objeto.
+      get() {
+        const raw = this.getDataValue('snapshotJson');
+        if (typeof raw === 'string') {
+          try {
+            return JSON.parse(raw);
+          } catch {
+            return raw;
+          }
+        }
+        return raw;
+      },
+    },
     pdfPath: { type: DataTypes.STRING, allowNull: true, field: 'pdf_path' },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,

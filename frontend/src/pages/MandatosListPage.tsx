@@ -18,6 +18,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { crearMandato, listarMandatos, type EstadoProceso, type Mandato } from '../api/mandatos';
 import { listarClientes, type Cliente } from '../api/clientes';
 import { listarCatalogo, type Vertical } from '../api/catalogos';
+import { listarPlantillas, type Plantilla } from '../api/plantillas';
 
 const { Title } = Typography;
 
@@ -38,6 +39,7 @@ export default function MandatosListPage() {
   const [mandatos, setMandatos] = useState<Mandato[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [verticales, setVerticales] = useState<Vertical[]>([]);
+  const [plantillas, setPlantillas] = useState<Plantilla[]>([]);
   const [cargando, setCargando] = useState(true);
   const [modal, setModal] = useState(false);
   const [guardando, setGuardando] = useState(false);
@@ -46,14 +48,16 @@ export default function MandatosListPage() {
   const cargar = async () => {
     setCargando(true);
     try {
-      const [m, c, v] = await Promise.all([
+      const [m, c, v, p] = await Promise.all([
         listarMandatos(),
         listarClientes(),
         listarCatalogo<Vertical>('verticales'),
+        listarPlantillas(),
       ]);
       setMandatos(m);
       setClientes(c);
       setVerticales(v);
+      setPlantillas(p);
     } catch {
       message.error('No se pudieron cargar los mandatos');
     } finally {
@@ -70,6 +74,7 @@ export default function MandatosListPage() {
     clienteId: number;
     verticalId: number;
     titulo: string;
+    plantillaId?: number;
   }) => {
     setGuardando(true);
     try {
@@ -169,6 +174,20 @@ export default function MandatosListPage() {
             rules={[{ required: true, message: 'El título es obligatorio' }]}
           >
             <Input placeholder="Ej: CMO para expansión EMEA" />
+          </Form.Item>
+          <Form.Item
+            label="Plantilla de pipeline"
+            name="plantillaId"
+            initialValue={plantillas.find((p) => p.esDefault)?.id ?? plantillas[0]?.id}
+            tooltip="Las etapas de esta plantilla se copian al mandato y podrás editarlas después."
+          >
+            <Select
+              placeholder="Selecciona plantilla"
+              options={plantillas.map((p) => ({
+                value: p.id,
+                label: p.esDefault ? `${p.nombre} (por defecto)` : p.nombre,
+              }))}
+            />
           </Form.Item>
         </Form>
       </Modal>

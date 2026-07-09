@@ -20,6 +20,10 @@ import CandidatoDimensionScore from './CandidatoDimensionScore';
 import CandidatoObservacion from './CandidatoObservacion';
 import Informe from './Informe';
 import InformeShareLink from './InformeShareLink';
+import Tarea from './Tarea';
+import PipelinePlantilla from './PipelinePlantilla';
+import PipelinePlantillaEtapa from './PipelinePlantillaEtapa';
+import ProcesoEtapa from './ProcesoEtapa';
 
 // ---------------------------------------------------------------------------
 // Asociaciones (un único lugar para todas las relaciones entre modelos).
@@ -92,6 +96,21 @@ Candidato.hasMany(ProcesoCandidato, {
 });
 ProcesoCandidato.belongsTo(Candidato, { foreignKey: 'candidatoId', as: 'candidato' });
 
+// Plantillas de pipeline y sus etapas maestras (config global reutilizable)
+PipelinePlantilla.hasMany(PipelinePlantillaEtapa, {
+  foreignKey: 'plantillaId',
+  as: 'etapas',
+  onDelete: 'CASCADE',
+});
+PipelinePlantillaEtapa.belongsTo(PipelinePlantilla, { foreignKey: 'plantillaId', as: 'plantilla' });
+
+// Etapas propias de cada mandato (copiadas de una plantilla al crearlo).
+// Un ProcesoCandidato pertenece a una de estas etapas vía etapaId.
+ProcesoSeleccion.hasMany(ProcesoEtapa, { foreignKey: 'procesoId', as: 'etapas', onDelete: 'CASCADE' });
+ProcesoEtapa.belongsTo(ProcesoSeleccion, { foreignKey: 'procesoId', as: 'proceso' });
+ProcesoEtapa.hasMany(ProcesoCandidato, { foreignKey: 'etapaId', as: 'participantes' });
+ProcesoCandidato.belongsTo(ProcesoEtapa, { foreignKey: 'etapaId', as: 'etapa' });
+
 // Evaluación de una participación (métricas / scores por dimensión / observaciones)
 ProcesoCandidato.hasMany(CandidatoMetrica, {
   foreignKey: 'procesoCandidatoId',
@@ -130,6 +149,14 @@ Informe.hasMany(InformeShareLink, {
 });
 InformeShareLink.belongsTo(Informe, { foreignKey: 'informeId', as: 'informe' });
 
+// Tareas / recordatorios: asignado y creador (Usuario) + vínculos opcionales de contexto.
+Tarea.belongsTo(Usuario, { foreignKey: 'asignadoA', as: 'asignado' });
+Tarea.belongsTo(Usuario, { foreignKey: 'creadoPor', as: 'creador' });
+Tarea.belongsTo(ProcesoSeleccion, { foreignKey: 'procesoId', as: 'proceso' });
+Tarea.belongsTo(Candidato, { foreignKey: 'candidatoId', as: 'candidato' });
+Tarea.belongsTo(Cliente, { foreignKey: 'clienteId', as: 'cliente' });
+Tarea.belongsTo(ProcesoCandidato, { foreignKey: 'procesoCandidatoId', as: 'procesoCandidato' });
+
 const models = {
   Usuario,
   Cliente,
@@ -152,6 +179,10 @@ const models = {
   CandidatoObservacion,
   Informe,
   InformeShareLink,
+  Tarea,
+  PipelinePlantilla,
+  PipelinePlantillaEtapa,
+  ProcesoEtapa,
 };
 
 export {
@@ -177,5 +208,9 @@ export {
   CandidatoObservacion,
   Informe,
   InformeShareLink,
+  Tarea,
+  PipelinePlantilla,
+  PipelinePlantillaEtapa,
+  ProcesoEtapa,
 };
 export default models;

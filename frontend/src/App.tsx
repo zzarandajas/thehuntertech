@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage';
 import ClientesListPage from './pages/ClientesListPage';
 import ClienteDetailPage from './pages/ClienteDetailPage';
 import CatalogosPage from './pages/CatalogosPage';
+import PlantillasPage from './pages/PlantillasPage';
 import UsuariosPage from './pages/UsuariosPage';
 import MandatosListPage from './pages/MandatosListPage';
 import MandatoDetailPage from './pages/MandatoDetailPage';
@@ -39,6 +40,7 @@ export default function App() {
                 <Route path="/talento" element={<TalentoListPage />} />
                 <Route path="/talento/:id" element={<CandidatoProfilePage />} />
                 <Route path="/catalogos" element={<CatalogosPage />} />
+                <Route path="/plantillas" element={<PlantillasPage />} />
                 <Route path="/usuarios" element={<UsuariosPage />} />
               </Route>
             </Route>

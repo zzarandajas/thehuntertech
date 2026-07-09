@@ -34,10 +34,20 @@ export interface MandatoConsultor {
   usuario?: { id: number; nombre: string; email: string; rol: string };
 }
 
+export interface MandatoEtapa {
+  id: number;
+  procesoId: number;
+  nombre: string;
+  orden: number;
+  color: string;
+  esFinal: boolean;
+}
+
 export interface MandatoDetalle extends Mandato {
   creador?: { id: number; nombre: string; email: string };
   dimensiones: MandatoDimension[];
   consultores: MandatoConsultor[];
+  etapas: MandatoEtapa[];
 }
 
 export interface DatosMandato {
@@ -45,6 +55,7 @@ export interface DatosMandato {
   verticalId: number;
   titulo: string;
   anonimizarNombres?: boolean;
+  plantillaId?: number;
 }
 
 export async function listarMandatos(): Promise<Mandato[]> {

@@ -1,21 +1,29 @@
 import client from './client';
 
-export type EtapaPipeline =
-  | 'sourcing'
-  | 'longlist'
-  | 'shortlist'
-  | 'presentado'
-  | 'entrevista_cliente'
-  | 'oferta'
-  | 'contratado'
-  | 'descartado';
+// Etapa propia de un mandato (columna del board). Se copia de una plantilla al
+// crear el mandato y es editable de forma independiente.
+export interface EtapaProceso {
+  id: number;
+  procesoId: number;
+  nombre: string;
+  orden: number;
+  color: string;
+  esFinal: boolean;
+}
+
+export interface EtapaProcesoInput {
+  id?: number;
+  nombre: string;
+  color?: string;
+  esFinal?: boolean;
+}
 
 export interface ProcesoCandidato {
   id: number;
   procesoId: number;
   candidatoId: number;
   orden: number;
-  etapa: EtapaPipeline;
+  etapaId: number;
   posicionActualSnapshot: string | null;
   expectativaSalarial: string | null;
   fechaIncorporacion: string | null;
@@ -28,30 +36,24 @@ export interface ProcesoCandidato {
   };
 }
 
-export const ETAPAS: EtapaPipeline[] = [
-  'sourcing',
-  'longlist',
-  'shortlist',
-  'presentado',
-  'entrevista_cliente',
-  'oferta',
-  'contratado',
-  'descartado',
-];
-
-export const ETAPA_LABEL: Record<EtapaPipeline, string> = {
-  sourcing: 'Sourcing',
-  longlist: 'Longlist',
-  shortlist: 'Shortlist',
-  presentado: 'Presentado',
-  entrevista_cliente: 'Entrevista cliente',
-  oferta: 'Oferta',
-  contratado: 'Contratado',
-  descartado: 'Descartado',
-};
+// Color por defecto para una etapa nueva sin color asignado.
+export const ETAPA_COLOR_DEFAULT = '#64748b';
 
 export async function obtenerPipeline(procesoId: number): Promise<ProcesoCandidato[]> {
   const { data } = await client.get<ProcesoCandidato[]>(`/procesos/${procesoId}/pipeline`);
+  return data;
+}
+
+export async function obtenerEtapasProceso(procesoId: number): Promise<EtapaProceso[]> {
+  const { data } = await client.get<EtapaProceso[]>(`/procesos/${procesoId}/etapas`);
+  return data;
+}
+
+export async function reemplazarEtapasProceso(
+  procesoId: number,
+  etapas: EtapaProcesoInput[],
+): Promise<EtapaProceso[]> {
+  const { data } = await client.put<EtapaProceso[]>(`/procesos/${procesoId}/etapas`, { etapas });
   return data;
 }
 

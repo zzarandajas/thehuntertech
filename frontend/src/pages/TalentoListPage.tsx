@@ -12,9 +12,11 @@ import {
   Table,
   Tag,
   Typography,
+  Upload,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
+import { parsearCv } from '../api/ia';
 import {
   crearCandidato,
   listarCandidatos,
@@ -46,7 +48,35 @@ export default function TalentoListPage() {
   const [filtros, setFiltros] = useState<FiltrosTalento>({});
   const [modal, setModal] = useState(false);
   const [guardando, setGuardando] = useState(false);
+  const [parsingCv, setParsingCv] = useState(false);
   const [form] = Form.useForm();
+
+  // Sube el CV al backend, extrae los datos con IA y prellena el formulario.
+  // La IA no crea nada: el consultor revisa antes de guardar.
+  const rellenarDesdeCv = async (file: File) => {
+    setParsingCv(true);
+    try {
+      const cv = await parsearCv(file);
+      form.setFieldsValue({
+        nombre: cv.nombre || undefined,
+        email: cv.email || undefined,
+        linkedinUrl: cv.linkedinUrl || undefined,
+      });
+      message.success('Formulario prellenado desde el CV. Revísalo antes de crear.');
+    } catch (err) {
+      const resp = (err as { response?: { status?: number; data?: { mensaje?: string } } }).response;
+      if (resp?.status === 503) {
+        message.warning('IA no disponible: falta configurar la API key en el backend');
+      } else if (resp?.status === 400) {
+        message.warning('El archivo debe ser un PDF');
+      } else {
+        message.error(resp?.data?.mensaje ?? 'No se pudo leer el CV');
+      }
+    } finally {
+      setParsingCv(false);
+    }
+    return false; // evita la subida automática de AntD
+  };
 
   const cargarCandidatos = async (f: FiltrosTalento) => {
     setCargando(true);
@@ -185,6 +215,11 @@ export default function TalentoListPage() {
         confirmLoading={guardando}
         destroyOnClose
       >
+        <Upload accept=".pdf" showUploadList={false} maxCount={1} beforeUpload={rellenarDesdeCv}>
+          <Button icon={<UploadOutlined />} loading={parsingCv} block style={{ marginBottom: 16 }}>
+            Rellenar desde CV (PDF)
+          </Button>
+        </Upload>
         <Form form={form} layout="vertical" onFinish={onCrear} requiredMark={false}>
           <Form.Item
             label="Nombre"

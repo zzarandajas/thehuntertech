@@ -40,7 +40,7 @@ export default function PublicInformePage() {
                 <Button
                   type="primary"
                   icon={<DownloadOutlined />}
-                  href={`/public/informes/${token}/pdf`}
+                  href={`/api/public/informes/${token}/pdf`}
                   target="_blank"
                 >
                   Descargar PDF
