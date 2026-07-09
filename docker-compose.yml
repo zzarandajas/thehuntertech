@@ -22,6 +22,10 @@ services:
 
   backend:
     build: ./backend
+    # Inyecta TODO el .env de la raiz al contenedor (ADMIN_*, DB_SYNC, etc.).
+    # `environment` de abajo tiene prioridad para lo especifico del stack (DB_HOST...).
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
       DB_HOST: mysql
